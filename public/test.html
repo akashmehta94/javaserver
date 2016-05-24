@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    </head>
+    <body>
+        <textarea id="input"></textarea>
+        <input type="submit" id="submit" name="Submit"/>
+        <textarea id="out"></textarea>
+        <textarea id="err"></textarea>
+        <script>
+            $('#submit').click(function() {
+                console.log($(input).val());
+                $.post("/",
+                    {
+                       "className": "Test",
+                       "input": $(input).val()
+                    },
+                    function(data, status) {
+                       if (status == "success") {
+                            $('#out').val(data.out);
+                            $('#err').val(data.err);
+                       }
+                    }
+                );
+            });
+        </script>
+    </body>
+</html>

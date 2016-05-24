@@ -1,0 +1,28 @@
+{
+  "name": "javaserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://akashmehta94@github.com/akashmehta94/javaserver.git"
+  },
+  "author": "Akash Mehta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akashmehta94/javaserver/issues"
+  },
+  "homepage": "https://github.com/akashmehta94/javaserver#readme",
+  "dependencies": {
+    "async": "^2.0.0-rc.5",
+    "body-parser": "^1.15.1",
+    "cookie-parser": "^1.4.2",
+    "express": "^4.13.4",
+    "morgan": "^1.7.0",
+    "path": "^0.12.7",
+    "rmdir": "^1.2.0"
+  }
+}
