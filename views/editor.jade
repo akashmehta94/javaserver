@@ -107,7 +107,7 @@ block content
 				return false;
 			});
 		});
-		var ws = new WebSocket('ws://localhost:3000/editor/editor');
+		var ws = new WebSocket('ws://ec2-54-201-90-238.us-west-2.compute.amazonaws.com:3000/editor/editor');
 		ws.onmessage = function (message) {
 			var message = JSON.parse(message.data);
 			updateTests(message);
