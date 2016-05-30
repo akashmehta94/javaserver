@@ -21,6 +21,10 @@
     "body-parser": "^1.15.1",
     "cookie-parser": "^1.4.2",
     "express": "^4.13.4",
+    "express-ws-routes": "^1.1.0",
+    "fs-extra": "^0.30.0",
+    "jade": "^1.11.0",
+    "marked": "^0.3.5",
     "morgan": "^1.7.0",
     "path": "^0.12.7",
     "rmdir": "^1.2.0"

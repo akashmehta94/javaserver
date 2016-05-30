@@ -1,0 +1,128 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			div.col-md-6
+				h3 Description
+				hr
+				#description
+					span!= marked(description)
+			div.col-md-6
+				h3 Editor
+				hr
+				#editor
+					| #{template}
+		div.row
+			div.col-md-6
+				#console
+					h3 Output console
+					hr
+					p#output
+					
+			div.col-md-4
+				#tests
+					h3 Test cases
+					hr
+					table.table
+						tbody
+			div.col-md-2
+				#actions
+					h3 Actions
+						hr
+						button#run-all.btn.btn-block.btn-info(type='submit') Play All Tests
+						form(method='post', action='/editor/#{problem}')
+							input#source(type='hidden', name='source')
+							button#submit.btn.btn-block.btn-danger(type='submit') Submit
+	script.
+		var editor = ace.edit("editor");
+			editor.setTheme("ace/theme/xcode");
+			editor.getSession().setMode("ace/mode/java");
+		var tests = !{JSON.stringify(tests)};
+		var tableElement = $('#tests tbody');
+		$('#submit').prop('disabled', true);
+		function submitTests() {
+			var source = editor.getValue();
+			tests.forEach(function(test) {
+				if (test.pending) {
+					$(test.buttonElement).removeClass('btn-info');
+					$(test.buttonElement).addClass('btn-warning');
+					$(test.buttonElement).text('Running');
+					var tableRow = $(test.buttonElement).closest('tr');
+					$(tableRow).removeClass('success');
+					$(tableRow).removeClass('danger');
+					$(tableRow).addClass('active');
+					ws.send(JSON.stringify({
+						type: 'run-test',
+						problem: '#{problem}',
+						test: test.file,
+						source: source
+					}));
+				}
+				$(test.buttonElement).prop('disabled', true);
+			});
+			$('#run-all').prop('disabled', true);
+			$('#submit').prop('disabled', true);
+			$('#output').html('');
+		}
+		function updateTests(message) {
+			var finished = true;
+			tests.forEach(function(test) {
+				if (test.pending) {
+					if (test.file == message.test) {
+						test.pending = false;
+						$(test.buttonElement).removeClass('btn-warning');					
+						$(test.buttonElement).addClass('btn-info');
+						$(test.buttonElement).text('Play Test');
+						var tableRow = $(test.buttonElement).closest('tr');
+						$(tableRow).removeClass('active');
+						if (message.result) {
+							$(tableRow).addClass('success');
+						} else {
+							$(tableRow).addClass('danger');
+						}
+						$('#output').append('<h4>' + test.description + '</h4>' + '<p>' + message.output.replace('\n', '<br>') + '</p>');
+					} else {
+						finished = false;
+					}
+				}
+			});
+			if (finished) {
+				tests.forEach(function(test) {
+					$(test.buttonElement).prop('disabled', false);
+				});
+				$('#run-all').prop('disabled', false);
+				$('#submit').prop('disabled', false);
+			}
+		}
+		tests.forEach(function(test) {
+			var rowElement = $('<tr>');
+			var descriptionElement = $('<td>' + test.description + '</td>');
+			var columnElement = $('<td>');
+			test.buttonElement = $('<button class="btn btn-block btn-info" type="submit">Play Test</button>');
+			tableElement.append(rowElement.append(descriptionElement).append(columnElement.append(test.buttonElement)));
+			$(test.buttonElement).click(function() {
+				test.pending = true;
+				submitTests();
+				return false;
+			});
+		});
+		var ws = new WebSocket('ws://localhost:3000/editor/editor');
+		ws.onmessage = function (message) {
+			var message = JSON.parse(message.data);
+			updateTests(message);
+			
+		};
+		$('#run-all').click(function() {
+			tests.forEach(function(test) {
+				test.pending = true;
+			});
+			submitTests();
+			return false;
+		});
+		$('#submit').click(function() {
+			var source = editor.getValue();
+			$('#source').val(source);
+			return true;
+		});
+

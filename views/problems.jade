@@ -1,0 +1,11 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			div.col-md-12
+				h1 Problems
+				hr
+				each problem in problems
+					p
+						a(href='/editor/#{problem.id}') #{problem.title}

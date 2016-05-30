@@ -1,0 +1,34 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			div.col-md-12
+				h1 #{problem}
+				hr
+				h3 Mark
+				hr
+				p You have received #{mark} out of 100 marks.
+				h3 Test results
+				hr
+				table.table
+					thead
+						tr
+							th Test name
+							th Output
+					tbody
+						each test in tests
+							tr(class = test.result ? 'success' : 'danger')
+								td #{test.test}
+								td #{test.output}
+
+
+				h3 Your submission
+				hr
+				#editor
+					| #{source}
+	script.
+		var editor = ace.edit("editor");
+			editor.setTheme("ace/theme/xcode");
+			editor.getSession().setMode("ace/mode/java");
+			editor.setReadOnly(true);
