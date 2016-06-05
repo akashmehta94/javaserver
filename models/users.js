@@ -6,6 +6,9 @@ var db = new sqlite3.Database(path.join(__dirname, '../db/users.db'));
 db.run('create table if not exists users (id integer primary key, name text, email text unique, password text, authToken text unique)');
 
 module.exports.signUp = function(email, name, password, callback) {
+	if (!email.endsWith('imperial.ac.uk') && !email.endsWith('ic.ac.uk')) {
+		return callback('Email does not belong to Imperial College London.');
+	}
 	db.serialize(function() {
 		db.run('insert into users(email, name, password, authToken) values (?, ?, ?, ?)', [email, name, bcrypt.hashSync(password, 8), bcrypt.genSaltSync(8)], function(err, rows) {
 			if(err) {
