@@ -1,0 +1,30 @@
+extends basic-layout
+
+block content
+	div.container
+		div.row
+			div.col-md-12
+				h1 Registration
+				hr
+				if errors
+					each error in errors
+						div.alert.alert-danger(role='alert')
+							span.glyphicon.glyphicon-exclamation-sign(aria-hidden='true') 
+							span.sr-only Error: 
+							| 
+							= error.msg
+				form(method='post', action='/sign-up')
+					div.form-group
+						label(for='email') Email
+						input.form-control(type='email', name='email', placeholder='Imperial email')
+					div.form-group
+						label(for='email') Password
+						input.form-control(type='password', name='password', placeholder='Password')
+					div.form-group
+						label(for='email') Name
+						input.form-control(type='text', name='name', placeholder='Name')
+					input(type='hidden', name='_csrf', value='#{csrfToken}')
+					button.btn.btn-info(type='submit') Sign up
+				p
+					| Already have an account. 
+					a(href='/sign-in') Sign in.

@@ -1,6 +1,5 @@
 var express = require('express');
 var path = require('path');
-var fs = require('fs');
 var spawn = require('child_process').spawn;
 var rmdir = require('rmdir');
 var async = require('async');
@@ -26,6 +25,7 @@ router.get('/:problem', function(req, res, next) {
 		}
 		results.marked = marked;
 		results.problem = problem;
+		results.user = req.user;
 		res.render('editor', results);		
 	});
 });
@@ -43,29 +43,49 @@ router.post('/:problem', function(req, res, next) {
 	});
 });
 
+var clients = [];
+
 router.websocket('/editor', function(info, callback, next) {
 	callback(function(ws) {
+		clients.push(ws);
 		ws.on('message', function(message) {
 			try {
 				message = JSON.parse(message);
-				console.log(message.type);
 				var problem = message.problem.replace(/[^A-Za-z\-]/g, '');
 				if (message.type == 'run-test') {
 					editor.runTest(problem, message.test, message.source, function(err, output) {
-						console.log('done', err);
-						console.log(output);
 						ws.send(JSON.stringify({
 							problem: problem,
+							type: 'test-result',
 							test: message.test,
 							result: !err,
 							output: output
 						}));
 					});
+				} else if (message.type == 'chat-message') {
+					console.log('sending', message);
+					clients.forEach(function(client) {
+						try {
+							client.send(JSON.stringify(message));
+						} catch (err) {
+							console.log(err);
+						}
+					});
 				}
 			} catch (err) {
 				console.log(err);
 			}
-		});	
+		});
+		ws.on('close', function() {
+			try {
+				var i = clients.indexOf(ws);
+				if (i != -1) {
+					clients.splice(i, 1);
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		});
 	});
 });
 					 

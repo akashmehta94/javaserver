@@ -3,41 +3,59 @@ extends layout
 block content
 	div.container
 		div.row
-			div.col-md-6
+			div.col-sm-6
 				h3 Description
 				hr
 				#description
 					span!= marked(description)
-			div.col-md-6
+			div.col-sm-6
 				h3 Editor
 				hr
 				#editor
 					| #{template}
 		div.row
-			div.col-md-6
+			div.col-sm-12.col-md-6
+				h3 Output console
+				hr
 				#console
-					h3 Output console
-					hr
 					p#output
 					
-			div.col-md-4
+			div.col-sm-8.col-md-4
+				h3 Test cases
+				hr
 				#tests
-					h3 Test cases
-					hr
 					table.table
 						tbody
-			div.col-md-2
+			div.col-sm-4.col-md-2
+				h3 Actions
+				hr
 				#actions
-					h3 Actions
-						hr
-						button#run-all.btn.btn-block.btn-info(type='submit') Play All Tests
-						form(method='post', action='/editor/#{problem}')
-							input#source(type='hidden', name='source')
-							button#submit.btn.btn-block.btn-danger(type='submit') Submit
+					button#run-all.btn.btn-block.btn-info(type='submit') Play All
+					form(method='post', action='/editor/#{problem}')
+						input#source(type='hidden', name='source')
+						button#submit.btn.btn-block.btn-danger(type='submit') Submit
+		div.row.chat-window.col-xs-10.col-md-5
+			.col-xs-12.col-md-12
+				.panel.panel-default
+					.panel-heading.top-bar
+						.col-md-8.col-xs-8
+							h3.panel-title
+								span.glyphicon.glyphicon-comment
+								|	Chat
+						.col-md-4.col-xs-4(style='text-align: right;')
+							a(href='#')
+								span#minim_chat_window.glyphicon.glyphicon-minus.icon_minim
+					.panel-body.msg_container_base
+						ul.chat
+					.panel-footer
+						.input-group
+							input#btn-input.form-control.input-sm.chat_input(type='text', placeholder='Write your message here...')
+							span.input-group-btn
+								button#btn-chat.btn.btn-info.btn-sm Send
 	script.
-		var editor = ace.edit("editor");
-			editor.setTheme("ace/theme/xcode");
-			editor.getSession().setMode("ace/mode/java");
+		var editor = ace.edit('editor');
+			editor.setTheme('ace/theme/xcode');
+			editor.getSession().setMode('ace/mode/java');
 		var tests = !{JSON.stringify(tests)};
 		var tableElement = $('#tests tbody');
 		$('#submit').prop('disabled', true);
@@ -95,6 +113,15 @@ block content
 				$('#submit').prop('disabled', false);
 			}
 		}
+		function updateChat(message) {
+			if (message.problem == '#{problem}') {
+				if (message.email == '#{user.email}') {
+					$('.panel-body.msg_container_base > ul').append($('<li class="right clearfix"><span class="chat-img pull-right"><img src="http://placehold.it/50/FA6F57/fff&text=' + message.name[0].toUpperCase() + '" alt="User Avatar" class="img-circle" /></span><div class="chat-body clearfix"><div class="header"><strong class="pull-right primary-font">' + message.name + '</strong></div><p>' + message.message + '</p></div></li>'));
+				} else {
+					$('.panel-body.msg_container_base > ul').append($('<li class="left clearfix"><span class="chat-img pull-left"><img src="http://placehold.it/50/55C1E7/fff&text=' + message.name[0].toUpperCase() + '" alt="User Avatar" class="img-circle" /></span><div class="chat-body clearfix"><div class="header"><strong class="primary-font">' + message.name + '</strong></div><p>' + message.message + '</p></div></li>'));
+				}
+			}
+		}
 		tests.forEach(function(test) {
 			var rowElement = $('<tr>');
 			var descriptionElement = $('<td>' + test.description + '</td>');
@@ -107,11 +134,14 @@ block content
 				return false;
 			});
 		});
-		var ws = new WebSocket('ws://ec2-54-201-90-238.us-west-2.compute.amazonaws.com:3000/editor/editor');
-		ws.onmessage = function (message) {
+        var ws = new WebSocket('ws://ec2-54-201-90-238.us-west-2.compute.amazonaws.com:3000/editor/editor');
+		ws.onmessage = function(message) {
 			var message = JSON.parse(message.data);
-			updateTests(message);
-			
+			if (message.type == 'test-result') {
+				updateTests(message);
+			} else if (message.type == 'chat-message') {
+				updateChat(message);
+			}
 		};
 		$('#run-all').click(function() {
 			tests.forEach(function(test) {
@@ -125,4 +155,40 @@ block content
 			$('#source').val(source);
 			return true;
 		});
-
+		$('#btn-chat').click(function() {
+			var message = $('#btn-input').val().trim();
+			if (message.length > 0) {
+				$('#btn-input').val('');
+				ws.send(JSON.stringify({
+					type: 'chat-message',
+					problem: '#{problem}',
+					email: '#{user.email}',
+					name: '#{user.name}',
+					message: message
+				}));
+			}
+			return false;
+		});
+		$(document).on('click', '.panel-heading span.icon_minim', function (e) {
+			var $this = $(this);
+			if (!$this.hasClass('panel-collapsed')) {
+				$this.parents('.panel').find('.panel-body').slideUp();
+				$this.addClass('panel-collapsed');
+				$this.removeClass('glyphicon-minus').addClass('glyphicon-plus');
+			} else {
+				$this.parents('.panel').find('.panel-body').slideDown();
+				$this.removeClass('panel-collapsed');
+				$this.removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			}
+		});
+		$(document).on('focus', '.panel-footer input.chat_input', function (e) {
+			var $this = $(this);
+			if ($('#minim_chat_window').hasClass('panel-collapsed')) {
+				$this.parents('.panel').find('.panel-body').slideDown();
+				$('#minim_chat_window').removeClass('panel-collapsed');
+				$('#minim_chat_window').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			}
+		});
+		$('.panel-heading span.icon_minim').parents('.panel').find('.panel-body').slideUp();
+		$('.panel-heading span.icon_minim').addClass('panel-collapsed');
+		$('.panel-heading span.icon_minim').removeClass('glyphicon-minus').addClass('glyphicon-plus');
