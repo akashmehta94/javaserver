@@ -41,8 +41,11 @@ app.use(function (request, response, next) {
 });
 
 var authenticate = function (req, res, next) {
+	console.log(req.signedCookies.id);
+	console.log(req.signedCookies.authToken);
 	users.authenticate(req.signedCookies.id, req.signedCookies.authToken, function(err, user) {
 		if (err) {
+			console.log(err);
 			return res.redirect('/sign-in');
 		}
 		req.user = user;
@@ -71,9 +74,10 @@ app.post('/sign-in', function(req, res) {
 				msg: err
 			}] });
 		}
+		console.log('SIGN IN', user.authToken);
 		res.cookie('id', user.id, { signed: true, maxAge: config.cookieMaxAge });
 		res.cookie('authToken', user.authToken, { signed: true, maxAge: config.cookieMaxAge });
-		res.redirect('/problems');
+		res.redirect('/');
 	});
 });
 
@@ -95,9 +99,10 @@ app.post('/sign-up', function(req, res) {
 				msg: err
 			}] });
 		}
+		console.log('SIGN UP', user.authToken);
 		res.cookie('id', user.id, { signed: true, maxAge: config.cookieMaxAge });
 		res.cookie('authToken', user.authToken, { signed: true, maxAge: config.cookieMaxAge });
-		res.redirect('/problems');
+		res.redirect('/');
 	});
 });
 

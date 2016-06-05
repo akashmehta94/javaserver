@@ -22,7 +22,7 @@ module.exports.signUp = function(email, name, password, callback) {
 					id: user.id,
 					email: user.email,
 					name: user.name,
-					authToken: user.auth_token
+					authToken: user.authToken
 				});
 			});
 		});
