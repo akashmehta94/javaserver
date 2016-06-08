@@ -6,6 +6,14 @@ block content
 			div.col-md-12
 				h1 Problems
 				hr
-				each problem in problems
-					p
-						a(href='/editor/#{problem.id}') #{problem.title}
+				each week in programme
+					h4 Week #{week.week} - #{week.name}
+					ul
+						each problem in week.problems
+							li
+								if problem.available
+									a(href='/editor/#{problem.id}') #{problem.name} 
+									if problem.mark
+										span (#{problem.mark}/100)
+								else
+									span.text-muted #{problem.name} 

@@ -1,0 +1,8 @@
+{
+	"id": "dynamic-points",
+	"name": "Dynamic Points",
+	"description": "description.md",
+	"template": "Point.java",
+	"week": 1,
+	"available": true
+}

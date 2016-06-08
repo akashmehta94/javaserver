@@ -2,6 +2,7 @@ var path = require('path');
 var fs = require('fs-extra');
 var spawn = require('child_process').spawn;
 var async = require('async');
+var parseString = require('xml2js').parseString;
 
 module.exports.description = function(problem, callback) {
 	fs.readFile(path.join(__dirname, '../problems', problem, 'description.md'), 'utf-8', callback);
@@ -241,6 +242,64 @@ module.exports.runEvaluationTest = function(problem, test, source, callback) {
 	});
 }
 
+module.exports.getFeedback = function(problem, source, callback) {
+	var output = '';
+	var directory = null;
+	async.waterfall([
+		function(callback) {
+			fs.mkdtemp(path.join(__dirname, '../temp/test-'), function(err, tempDirectory) {
+				if (err) {
+					return callback(err);
+				}
+				directory = tempDirectory;
+				callback(null);
+			});
+		},
+		function(callback) {
+			module.exports.filename(problem, function(err, filename) {
+				if (err) {
+					return callback(err);
+				}
+				callback(null, filename);
+			});
+		},
+		function(filename, callback) {
+			fs.writeFile(path.join(directory, filename), source, function(err) {
+				if (err) {
+					return callback(err);
+				}
+				callback(null, filename);
+			});
+		},
+		function(filename, callback) {
+			var checker = spawn('java', ['-jar', path.join(__dirname, '../libs', 'checkstyle-6.19-all.jar'), '-c', path.join(__dirname, '../libs', 'config.xml'), '-f', 'xml', path.join(directory, filename)]);
+			checker.stdout.on('data', function(data) {
+				output += data;
+			});
+			checker.stderr.on('data', function(data) {
+				output += data;
+			});
+			checker.on('exit', function(exitCode) {
+				if (exitCode != 0) {
+					return callback('Compilation error.');
+				}
+				callback(null);
+			});
+		}
+	], function(err) {
+		if (directory != null) {
+			fs.remove(directory, function() {
+				parseString(output, function (err, result) {
+					var errors = result.checkstyle.file[0].error ? result.checkstyle.file[0].error.map(error => error['$']) : [];
+					callback(err, errors);
+				});
+			});
+		} else {
+			callback(err);
+		}
+	});
+}
+
 module.exports.submit = function(problem, source, callback) {
 	module.exports.evaluationTests(problem, function(err, tests) {
 		if (err) {
@@ -250,6 +309,16 @@ module.exports.submit = function(problem, source, callback) {
 			module.exports.runEvaluationTest(problem, test.file, source, function(err, output) {
 				callback(null, { test: test.description, result: (err ? false : true), output: output });
 			});	
-		}, callback);
+		}, function(err, results) {
+			if (err) {
+				return callback(err);
+			}
+			module.exports.getFeedback(problem, source, function(err, output) {
+				if (err) {
+					return callback(err);
+				}
+				callback(null, { tests: results, feedback: output });
+			});
+		});
 	});
 };

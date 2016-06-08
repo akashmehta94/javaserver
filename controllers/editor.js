@@ -5,16 +5,28 @@ var rmdir = require('rmdir');
 var async = require('async');
 var marked = require('marked');
 var editor = require('../models/editor');
+var problems = require('../models/problems');
 var router = express.Router();
 
-router.get('/:problem', function(req, res, next) {
+router.get('/:problem', function(req, res) {
 	var problem = req.params.problem.replace(/[^A-Za-z\-]/g, '');
 	async.parallel({
 		description: function(callback) {
 			editor.description(problem, callback);
 		},
 		template: function(callback) {
-			editor.template(problem, callback);
+			editor.template(problem, function(err, template) {
+				if (err) {
+					return callback(err);
+				}
+				problems.load(req.signedCookies.id, problem, function(err, problem) {
+					if (err || !problem) {
+						return callback(null, template);
+					}
+					console.log(problem);
+					callback(null, problem.source);
+				});		
+			});
 		},
 		tests: function(callback) {
 			editor.tests(problem, callback);
@@ -30,16 +42,21 @@ router.get('/:problem', function(req, res, next) {
 	});
 });
 
-router.post('/:problem', function(req, res, next) {
+router.post('/:problem', function(req, res) {
 	var problem = req.params.problem.replace(/[^A-Za-z\-]/g, '');
 	var source = req.body.source;
 	editor.submit(problem, source, function(err, results) {
 		if (err) {
 			return res.status(500).send(err);
 		}
-		var mark = 100 * results.filter(x => x.result).length / results.length;
+		var mark = 100 * results.tests.filter(x => x.result).length / results.tests.length;
 		var problemTitle = problem.replace('-', ' ').toLowerCase().replace(/(^| )(\w)/g, x => x.toUpperCase());
-		res.render('result', { problem: problemTitle, source: source, mark: mark, tests: results });
+		problems.save(req.signedCookies.id, problem, source, mark, function(err) {
+			if (err) {
+				return res.status(500).send(err);
+			}
+			res.render('result', { problem: problemTitle, source: source, mark: mark, tests: results.tests, feedback: results.feedback });
+		});
 	});
 });
 
@@ -63,7 +80,6 @@ router.websocket('/editor', function(info, callback, next) {
 						}));
 					});
 				} else if (message.type == 'chat-message') {
-					console.log('sending', message);
 					clients.forEach(function(client) {
 						try {
 							client.send(JSON.stringify(message));

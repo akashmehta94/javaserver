@@ -1,0 +1,37 @@
+[{
+	"week": 1,
+	"name": "Simple classes"
+},{
+	"week": 2,
+	"name": "Overloading and Overriding"
+},{
+	"week": 3,
+	"name": "Inheritance and Polymorphism"
+},{
+	"week": 4,
+	"name": "Interfaces and Abstract classes"
+},{
+	"week": 5,
+	"name": "Internal classes and Generics"
+},{
+	"week": 6,
+	"name": "Comparators and Iterators"
+},{
+	"week": 7,
+	"name": "Exceptions"
+},{
+	"week": 8,
+	"name": "Collections"
+},{
+	"week": 9,
+	"name": "Input/output"
+},{
+	"week": 10,
+	"name": "Serialization"
+},{
+	"week": 11,
+	"name": "Design patterns 1"
+},{
+	"week": 12,
+	"name": "Design patterns 2"
+}]

@@ -1,0 +1,8 @@
+{
+	"id": "vectors",
+	"name": "Vectors",
+	"description": "description.md",
+	"template": "Vector.java",
+	"week": 1,
+	"available": true
+}

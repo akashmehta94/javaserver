@@ -33,6 +33,7 @@ block content
 					button#run-all.btn.btn-block.btn-info(type='submit') Play All
 					form(method='post', action='/editor/#{problem}')
 						input#source(type='hidden', name='source')
+						input(type='hidden', name='_csrf', value='#{csrfToken}')
 						button#submit.btn.btn-block.btn-danger(type='submit') Submit
 		div.row.chat-window.col-xs-10.col-md-5
 			.col-xs-12.col-md-12
@@ -134,7 +135,7 @@ block content
 				return false;
 			});
 		});
-        var ws = new WebSocket('ws://ec2-54-201-90-238.us-west-2.compute.amazonaws.com:3000/editor/editor');
+		var ws = new WebSocket('ws://localhost:3000/editor/editor');
 		ws.onmessage = function(message) {
 			var message = JSON.parse(message.data);
 			if (message.type == 'test-result') {

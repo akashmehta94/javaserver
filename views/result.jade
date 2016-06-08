@@ -21,8 +21,23 @@ block content
 							tr(class = test.result ? 'success' : 'danger')
 								td #{test.test}
 								td #{test.output}
-
-
+				h3 Code Feedback
+				hr
+				if feedback.length
+					table.table
+						thead
+							tr
+								th Line
+								th Column
+								th Comment
+						tbody
+							each error in feedback
+								tr(class = 'danger')
+									td #{error.line}
+									td #{error.column}
+									td #{error.message}
+				else
+					p No style errors detected.
 				h3 Your submission
 				hr
 				#editor
