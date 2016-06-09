@@ -10,6 +10,7 @@ db.run('create table if not exists problems (id integer not null, name text not 
 module.exports.problems = function(id, callback) {
 	db.get('select * from problems where id = ?', [id], function(err, problems) {
 		var submittedProblems = {};
+		problems = problems || [];
 		problems = [].concat(problems);
 		problems.forEach(problem => { submittedProblems[problem.name] = problem; });
 		fs.readFile(path.join(__dirname, '../', 'programme.json'), 'utf-8', function(err, data) {
