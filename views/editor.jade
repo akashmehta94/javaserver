@@ -135,7 +135,7 @@ block content
 				return false;
 			});
 		});
-		var ws = new WebSocket('ws://localhost:3000/editor/editor');
+		var ws = new WebSocket('ws://ec2-54-149-255-166.us-west-2.compute.amazonaws.com:3000/editor/editor');
 		ws.onmessage = function(message) {
 			var message = JSON.parse(message.data);
 			if (message.type == 'test-result') {
