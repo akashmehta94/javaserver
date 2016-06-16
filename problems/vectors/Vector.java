@@ -4,20 +4,19 @@ public class Vector {
     private final double y;
     private final double z;
 
-    public Vector(final double x, final double y, final double z) {
+    public Vector(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public Vector(final Vector vector) {
+    public Vector(Vector vector) {
         this.x = vector.x;
         this.y = vector.y;
         this.z = vector.z;
     }
 
-    public double getX() 
-    {
+    public double getX() {
         return x;
     }
 
@@ -29,9 +28,24 @@ public class Vector {
         return z;
     }
 
-    public Vector sum(final Vector vector) {
+    public Vector sum(Vector vector) {
         /* TODO */
         return null;
+    }
+
+    public Vector difference(Vector vector) {
+        /* TODO */
+        return null;
+    }
+
+    public Vector scale(double value) {
+        /* TODO */
+        return null;
+    }
+
+    public double distance(Vector vector) {
+        /* TODO */
+        return 0;
     }
 
     public Vector normalise() {
@@ -44,9 +58,9 @@ public class Vector {
         return 0;
     }
 
-    @Override
     public String toString() {
         return "(" + x + "," + y + "," + z + ")";
     }
 
 }
+
