@@ -6,7 +6,11 @@ Implement methods to perform addition.
 
 Write a method that takes another vector as argument and returns a new vector that consists of their sum.
 
+![Vector Addition](/images/vector_addition.svg "Vector Addition")
+
 Write a method that takes another vector as argument and returns a new vector that consists of their difference.
+
+![Vector Subraction](/images/vector_subtraction.svg "Vector Subtraction")
 
 Write a method that takes a number and returns a new vector that is scaled according to the argument.
 In order to scale a vector by a constant, it is simply required to multiply each of the coordinates of the vector by the scaling factor.
@@ -16,5 +20,8 @@ The distance between two vectors can be calculated by the length of their differ
 
 Finally, write a method to normalise the vector and return its length.
 A vector can be normalised by dividing by its length.
+
+![Euclidean Distance](/images/euclidean_distance.svg "Euclidean Distance")
+
 The length can be calculated by using the Euclidian norm which consists of the square root of the sum of the square of each of the coordinates of the vector.
 
